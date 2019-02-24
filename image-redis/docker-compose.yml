@@ -8,10 +8,11 @@ services:
     environment:
       - REDIS_HOST=redis
     ports:
-      - "5000:5000"
+      - 5000-5002:5000
   redis:
     image: redis:5.0.3-alpine
     volumes:
       - redis_data:/data
+    container_name: image-app_redis
 volumes:
   redis_data:

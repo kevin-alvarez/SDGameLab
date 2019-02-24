@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: ./app
+    environment:
+      - REDIS_HOST=rq-server
+    ports:
+      - 5000:5000
+    depends_on:
+      - rq-server
+      - rq-worker
+
+  rq-dashboard:
+    image: jaredv/rq-docker:0.0.2
+    command: rq-dashboard -H rq-server
+    ports:
+      - 9181:9181
+    depends_on:
+      - rq-server
+
+  rq-worker:
+    build:
+      context: ./rq-worker
+    command: rq worker -u redis://rq-server:6379 high normal low
+    depends_on:
+      - rq-server
+
+  rq-server:
+    image: redis:5.0.3-alpine
+    ports:
+      - 6379:6379
