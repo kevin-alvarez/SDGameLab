@@ -1,8 +1,8 @@
 version: '3.7'
 services:
-  app:
+  rq-service:
     build:
-      context: ./app
+      context: ./rq-service
     environment:
       - REDIS_HOST=rq-server
     ports:
@@ -22,7 +22,7 @@ services:
   rq-worker:
     build:
       context: ./rq-worker
-    command: rq worker -u redis://rq-server:6379 high normal low
+    command: rq worker -u redis://rq-server:6379 actions
     depends_on:
       - rq-server
 

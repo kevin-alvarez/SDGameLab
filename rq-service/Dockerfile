@@ -8,8 +8,9 @@ COPY ./requeriments.txt /requeriments.txt
 
 RUN pip install -r /requeriments.txt
 
-COPY ./app.py /app.py
+COPY ./service.py ./service.py
+COPY jobs/actions.py ./actions.py
 
 EXPOSE $BIND_PORT
 
-CMD ["python", "/app.py"]
+CMD ["python", "/service.py"]

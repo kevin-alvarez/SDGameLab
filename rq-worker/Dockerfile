@@ -1,5 +1,5 @@
 FROM jaredv/rq-docker:0.0.2
 
-COPY ./works.py ./
+COPY jobs/actions.py ./actions.py
 
 CMD ["rq", "worker"]
