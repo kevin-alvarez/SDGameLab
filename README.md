@@ -34,10 +34,21 @@ Se tienen imagenes para 4 contenedores:
 * rq-server: Contenedor de redis para almacenar las colas en la BD
 * rq-worker: Contenedor de worker para obtener y procesar los trabajos desde las colas
 * rq-dashboard: Contenedor de una app de dashboard para monitorear los trabajos de los workers
-* rq-service_app: Contenedor de la aplicación en flask, en la cual se realizan las llamadas al servicio
+* rq-service: Contenedor de la aplicación en flask, en la cual se realizan las llamadas al servicio
 
-Para construir las imagenes y montarlas se hace uso del comando `$ docker-compose up` luego de esto, ya con los contenedores funcionando se podrá acceder al dashboard en la dirección http://localhost:9181 y para las llamadas a los servicios la dirección http://localhost:5000
+Para construir las imágenes y montarlas se cuenta con un Makefile que contiene los comandos necesarios, entre las reglas disponibles se encuentran:
+
+* build: Crea todas las imágenes que deben construirse, en este caso rq-service y rq-worker
+* pull: Descarga desde los repositorios de docker todas las imágenes utilizadas
+* run: Monta las imágenes en contenedores y ejecuta las aplicaciones
+* build-and-run: Construye todas las imágenes y las ejecuta posteriormente
+
+*Deben descargarse todas las imágenes necesarias, por lo que primero se debe ejecutar el comando* `$ make pull`
+
+Para construir las imagenes y montarlas se hace uso del comando `$ make build-and-run` luego de esto, ya con los contenedores funcionando se podrá acceder al dashboard en la dirección http://localhost:9181 y para las llamadas a los servicios la dirección http://localhost:5000
+
+*Existe la posibilidad de escalar los workers y servicios mediante réplicas, esto se hace mediante el Makefile con las reglas 'run' y 'build-and-run' donde se pueden configurar la cantidad de contenedores con las variables SERVICES y WORKERS, actualmente los servicios no pueden ser replicados dada configuración de red para puertos (clash)*
 
 *No existe feature en dashboard para monitorear trabajos terminados, esto solo se puede observar en la consola, donde si el trabajo fue terminado con éxito llegará un mensaje del contenedor del worker que lo realizó informando "queue: job OK (job_id)"*
 
-*Actualmente solo existe un servicio el cual crea un job para la suma de 5+5, lo cual retorna un 10*
+*Actualmente solo existen servicios simples que retornan strings para las acciones de mover y atacar*

@@ -8,7 +8,7 @@ pull:
 	docker-compose pull
 
 run:
-	docker-compose up --scale rq-service=$(SERVICES) rq-worker=$(WORKERS)
+	docker-compose up --scale rq-worker=$(WORKERS) --scale rq-service=$(SERVICES)
 
 build-and-run:
 	docker-compose up --build --scale rq-worker=$(WORKERS) --scale rq-service=$(SERVICES)
