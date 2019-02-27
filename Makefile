@@ -1,5 +1,5 @@
-SERVICES=1
-WORKERS=1
+SERVICES=3
+WORKERS=3
 
 build:
 	docker-compose build

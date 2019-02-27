@@ -5,11 +5,17 @@ services:
       context: ./rq-service
     environment:
       - REDIS_HOST=rq-server
-    ports:
-      - 5000:5000
     depends_on:
       - rq-server
       - rq-worker
+
+  nginx-lb:
+    build:
+      context: ./nginx-lb
+    ports:
+      - 5000:80
+    depends_on:
+      - rq-service
 
   rq-dashboard:
     image: jaredv/rq-docker:0.0.2
@@ -28,5 +34,3 @@ services:
 
   rq-server:
     image: redis:5.0.3-alpine
-    ports:
-      - 6379:6379
