@@ -1,5 +1,5 @@
-def move():
-  return 'the character moved!'
+def move(game_map):
+  return f'the character moved! - map = {game_map}'
 
-def attack():
-  return 'the character attacked!'
+def attack(game_map):
+  return f'the character attacked! - map = {game_map}'

@@ -4,10 +4,12 @@ services:
     build:
       context: ./rq-service
     environment:
-      - REDIS_HOST=rq-server
+      - QUEUE_HOST=rq-server
+      - CACHE_HOST=map-cache-server
     depends_on:
       - rq-server
       - rq-worker
+      - map-cache-server
 
   nginx-lb:
     build:
@@ -34,3 +36,8 @@ services:
 
   rq-server:
     image: redis:5.0.3-alpine
+    command: redis-server --port 6379
+
+  map-cache-server:
+    image: redis:5.0.3-alpine
+    command: redis-server --port 6379

@@ -13,8 +13,10 @@ En caso de querer realizar pruebas sin necesidad de Docker, reemplazar las
 siguientes variables por su correspondiente valor. Antes de iniciar la app,
 asegurese de haber iniciado el servidor de Redis ($ redis-server).
 """
-# REDIS_HOST = localhost | REDIS_PORT = 6379
-redis = Redis(host=os.environ['REDIS_HOST'], port=os.environ['REDIS_PORT'])
+# QUEUE_HOST = rq-server | QUEUE_PORT = 6379
+# CACHE_HOST = map-cache-server | CACHE_PORT = 6379
+queue = Redis(host=os.environ['QUEUE_HOST'], port=os.environ['QUEUE_PORT'])
+cache = Redis(host=os.environ['CACHE_HOST'], port=os.environ['CACHE_PORT'])
 
 # BIND_PORT = 5000
 bind_port = int(os.environ['BIND_PORT'])
@@ -32,8 +34,14 @@ Queue(
 q1 = Queue(connection=redis)          # Al NO indicar un nombre, se asume como 'default'
 q2 = Queue('map1', connection=redis)
 """
-q = Queue('actions', connection=redis)
+q = Queue('actions', connection=queue)
 
+# Map first instance for cache (tal vez se deba consulta primero el mapa)
+default_map = {
+  'key_1': 'value_1',
+  'key_2': 'value_2'
+  }
+cache.set('map_1', str(default_map).encode('utf-8'))
 
 """
 La linea 48 podría producir inanicion, en el caso de que se trabaje con un unico worker
@@ -44,13 +52,18 @@ a las colas que se posean. Otra alternativa la dejo comentada mas abajo.
 """
 @app.route('/move')
 def moveQ():
-  job = q.enqueue(move)
+  game_map = cache.get('map_1').decode('utf-8')
+  job = q.enqueue(move, game_map)
   while job.result == None: pass  # Espera hasta obtener un resultado
+  # cache.set('map_1', job.result) # Se guarda el mapa resultante en cache (existe condición de carrera para el caché)
+  # Para evitar condición de carrera se puede guardar la cantidad de acciones realizadas y luego comparar número al momento de entregar la respuesta, en caso de falla reprocesar con mapa nuevo (rollback)
+  # numero_nuevo <= numero_cache -> mapa desactualizado
   return job.result
 
 @app.route('/attack')
 def attackQ():
-  job = q.enqueue(attack)
+  game_map = cache.get('map_1').decode('utf-8')
+  job = q.enqueue(attack, game_map)
   while job.result == None: pass
   return job.result
 
