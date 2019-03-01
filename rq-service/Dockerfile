@@ -9,6 +9,7 @@ ENV CACHE_PORT 6379
 COPY ./requeriments.txt /requeriments.txt
 
 RUN pip install -r /requeriments.txt
+RUN pip install -U flask-cors
 
 COPY ./service.py ./service.py
 COPY jobs/actions.py ./actions.py

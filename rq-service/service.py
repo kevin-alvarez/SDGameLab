@@ -5,8 +5,10 @@ from redis import Redis
 from rq import Queue
 from actions import move, attack
 from time import sleep
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 """
 En caso de querer realizar pruebas sin necesidad de Docker, reemplazar las
@@ -52,6 +54,13 @@ a las colas que se posean. Otra alternativa la dejo comentada mas abajo.
 """
 @app.route('/move')
 def moveQ():
+  fila    = request.args.get("f") # Fila actual jugador
+  col     = request.args.get("c") # Columna actual jugador
+  
+  # Dirección en la que se mueve el jugador
+  # L = 1 / R = 2 / U = 3 / D = 4 
+  dir     = request.args.get("d") 
+
   game_map = cache.get('map_1').decode('utf-8')
   job = q.enqueue(move, game_map)
   while job.result == None: pass  # Espera hasta obtener un resultado
@@ -66,6 +75,11 @@ def attackQ():
   job = q.enqueue(attack, game_map)
   while job.result == None: pass
   return job.result
+
+# Servicio que devuelve el último mapa en cache
+@app.route('/update')
+def update():
+  return "ok"
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", debug=True, port=bind_port)
