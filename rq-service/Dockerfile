@@ -13,6 +13,7 @@ RUN pip install -U flask-cors
 
 COPY ./service.py ./service.py
 COPY jobs/actions.py ./actions.py
+COPY modules/cache_redis.py ./cache_redis.py
 
 EXPOSE $BIND_PORT
 

@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from redis import Redis
 from rq import Queue
+from cache_redis import Cache
 from actions import move, attack
 from time import sleep
 from flask_cors import CORS
@@ -17,8 +18,8 @@ asegurese de haber iniciado el servidor de Redis ($ redis-server).
 """
 # QUEUE_HOST = rq-server | QUEUE_PORT = 6379
 # CACHE_HOST = map-cache-server | CACHE_PORT = 6379
-queue = Redis(host=os.environ['QUEUE_HOST'], port=os.environ['QUEUE_PORT'])
-cache = Redis(host=os.environ['CACHE_HOST'], port=os.environ['CACHE_PORT'])
+queue_conn = Redis(host=os.environ['QUEUE_HOST'], port=os.environ['QUEUE_PORT'])
+cache_conn = Redis(host=os.environ['CACHE_HOST'], port=os.environ['CACHE_PORT'])
 
 # BIND_PORT = 5000
 bind_port = int(os.environ['BIND_PORT'])
@@ -36,14 +37,15 @@ Queue(
 q1 = Queue(connection=redis)          # Al NO indicar un nombre, se asume como 'default'
 q2 = Queue('map1', connection=redis)
 """
-q = Queue('actions', connection=queue)
+q = Queue('actions', connection=queue_conn)
+cache = Cache(connection=cache_conn)
 
 # Map first instance for cache (tal vez se deba consulta primero el mapa)
 default_map = {
   'key_1': 'value_1',
   'key_2': 'value_2'
   }
-cache.set('map_1', str(default_map).encode('utf-8'))
+cache.set('map_1', str(default_map))
 
 """
 La linea 48 podría producir inanicion, en el caso de que se trabaje con un unico worker
@@ -61,7 +63,7 @@ def moveQ():
   # L = 1 / R = 2 / U = 3 / D = 4 
   dir     = request.args.get("d") 
 
-  game_map = cache.get('map_1').decode('utf-8')
+  game_map = cache.get('map_1')
   job = q.enqueue(move, game_map)
   while job.result == None: pass  # Espera hasta obtener un resultado
   # cache.set('map_1', job.result) # Se guarda el mapa resultante en cache (existe condición de carrera para el caché)
@@ -71,7 +73,7 @@ def moveQ():
 
 @app.route('/attack')
 def attackQ():
-  game_map = cache.get('map_1').decode('utf-8')
+  game_map = cache.get('map_1')
   job = q.enqueue(attack, game_map)
   while job.result == None: pass
   return job.result
