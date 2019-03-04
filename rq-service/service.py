@@ -7,9 +7,11 @@ from cache_redis import Cache
 from actions import move, attack
 from time import sleep
 from flask_cors import CORS
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
-CORS(app)
+cors = CORS(app)
+socketio = SocketIO(app)
 
 """
 En caso de querer realizar pruebas sin necesidad de Docker, reemplazar las
@@ -56,8 +58,8 @@ a las colas que se posean. Otra alternativa la dejo comentada mas abajo.
 """
 @app.route('/move')
 def moveQ():
-  x    = request.args.get("f") # Fila actual jugador
-  y     = request.args.get("c") # Columna actual jugador
+  x = request.args.get("f") # Fila actual jugador
+  y = request.args.get("c") # Columna actual jugador
   
   # Dirección en la que se mueve el jugador
   # L = 1 / R = 2 / U = 3 / D = 4 
@@ -83,8 +85,22 @@ def attackQ():
 def update():
   return "ok"
 
+@socketio.on('connect')
+def connect():
+  socketio.send("message", "It WORKS!")
+  #socketio.emit('response', {'data': 'Connected'})
+
+@socketio.on('disconnect')
+def disconnect():
+  print('Client disconnected')
+
+@socketio.on('message')
+def message(msg):
+  print('MSG: '+msg)
+  socketio.emit('message', 'cagamo')
+
 if __name__ == "__main__":
-  app.run(host="0.0.0.0", debug=True, port=bind_port)
+  socketio.run(app, host="0.0.0.0")
 
 
 """

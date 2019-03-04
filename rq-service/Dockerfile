@@ -17,4 +17,4 @@ COPY modules/cache_redis.py ./cache_redis.py
 
 EXPOSE $BIND_PORT
 
-CMD ["python", "/service.py"]
+CMD ["python", "-u", "/service.py"]
