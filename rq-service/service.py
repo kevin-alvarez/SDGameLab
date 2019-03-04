@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, request
 from redis import Redis
 from rq import Queue
 from cache_redis import Cache
@@ -42,8 +42,8 @@ cache = Cache(connection=cache_conn)
 
 # Map first instance for cache (tal vez se deba consulta primero el mapa)
 default_map = {
-  'key_1': 'value_1',
-  'key_2': 'value_2'
+  'id': '1234',
+  'layout': [[0]*20]*20
   }
 cache.set('map_1', str(default_map))
 
@@ -56,17 +56,17 @@ a las colas que se posean. Otra alternativa la dejo comentada mas abajo.
 """
 @app.route('/move')
 def moveQ():
-  fila    = request.args.get("f") # Fila actual jugador
-  col     = request.args.get("c") # Columna actual jugador
+  x    = request.args.get("f") # Fila actual jugador
+  y     = request.args.get("c") # Columna actual jugador
   
   # Dirección en la que se mueve el jugador
   # L = 1 / R = 2 / U = 3 / D = 4 
   dir     = request.args.get("d") 
 
   game_map = cache.get('map_1')
-  job = q.enqueue(move, game_map)
+  job = q.enqueue(move, x, y, dir, game_map)
   while job.result == None: pass  # Espera hasta obtener un resultado
-  # cache.set('map_1', job.result) # Se guarda el mapa resultante en cache (existe condición de carrera para el caché)
+  cache.set('map_1', job.result) # Se guarda el mapa resultante en cache (existe condición de carrera para el caché)
   # Para evitar condición de carrera se puede guardar la cantidad de acciones realizadas y luego comparar número al momento de entregar la respuesta, en caso de falla reprocesar con mapa nuevo (rollback)
   # numero_nuevo <= numero_cache -> mapa desactualizado
   return job.result
