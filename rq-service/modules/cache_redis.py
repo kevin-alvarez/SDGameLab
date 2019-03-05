@@ -7,3 +7,6 @@ class Cache:
 
   def get(self, key):
     return self.conn.get(key).decode('utf-8')
+
+  def incr(self, key):
+    self.conn.incr(key)
