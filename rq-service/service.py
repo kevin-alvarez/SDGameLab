@@ -80,14 +80,14 @@ def connect():
     while job.result == None:
         pass
     cache.set('map_1', job.result[0])
-    socketio.emit('map', job.result[0])
-    socketio.emit('player', {'x': job.result[1], 'y': job.result[2]})
+    socketio.emit('map', eval(job.result[0]))
+    socketio.emit('player', {'x': job.result[1], 'y': job.result[2], 'id': player_id})
     socketio.emit('message', 'Ha ingresado el jugador ' + player_id)
 
 
 @socketio.on('disconnect')
-def disconnect():
-    socketio.emit('message', 'Se ha desconectado un jugador')
+def disconnect(message):
+    socketio.emit('message', 'Se ha desconectado el jugador '+ message)
 
 
 @socketio.on('move')
@@ -104,7 +104,7 @@ def message(data):
     cache.set('map_1', job.result)
     # Para evitar condición de carrera se puede guardar la cantidad de acciones realizadas y luego comparar número al momento de entregar la respuesta, en caso de falla reprocesar con mapa nuevo (rollback)
     # numero_nuevo <= numero_cache -> mapa desactualizado
-    socketio.emit('map', job.result)
+    socketio.emit('map', eval(job.result))
 
 
 if __name__ == "__main__":
