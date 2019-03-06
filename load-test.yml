@@ -1,0 +1,13 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+scenarios:
+  - flow:
+    - get:
+        url: "/load-test"
+        json:
+          f: "{{ $randomNumber(0, 19) }}"
+          c: "{{ $randomNumber(0, 19) }}"
+          dir: "{{ $randomNumber(1, 4) }}"

@@ -62,6 +62,22 @@ para una cola y la tarea que se este realizando, no haya finalizado aun.
 Una "solucion" para evitar un caso posible, es simplemente asignar mas de 1 worker
 a las colas que se posean. Otra alternativa la dejo comentada mas abajo.
 """
+@app.route('/load-test')
+def test():
+    x = request.json['f']
+    y = request.json['c']
+    dir = request.json['dir']
+    game_map = cache.get('map_1')
+    job = q.enqueue(move, x, y, dir, game_map)
+    while job.result == None:
+        pass
+
+    # Se guarda el mapa resultante en cache (existe condición de carrera para el caché)
+    cache.set('map_1', job.result)
+    # Para evitar condición de carrera se puede guardar la cantidad de acciones realizadas y luego comparar número al momento de entregar la respuesta, en caso de falla reprocesar con mapa nuevo (rollback)
+    # numero_nuevo <= numero_cache -> mapa desactualizado
+    return job.result
+
 @app.route('/attack')
 def attackQ():
     game_map = cache.get('map_1')
