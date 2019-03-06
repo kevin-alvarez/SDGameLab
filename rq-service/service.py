@@ -47,9 +47,10 @@ q = Queue('actions', connection=queue_conn)
 cache = Cache(connection=cache_conn)
 
 # Map first instance for cache (tal vez se deba consulta primero el mapa)
+layout = [[0] * 20 for i in range(20)]
 default_map = {
     'id': '1234',
-    'layout': [[0]*20]*20
+    'layout': layout
 }
 
 cache.set('map_1', str(default_map))

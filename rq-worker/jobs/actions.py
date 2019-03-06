@@ -6,19 +6,20 @@ def move(x, y, dir, game_map):
     layout = map_data['layout']
     x = int(x)
     y = int(y)
-    player_id = layout[x][y]
+    dir = int(dir)
+    player_id = int(layout[x][y])
     if (x - 1 < 0) or (y - 1 < 0) or (x + 1 > 19) or (y + 1 > 19):
         return str(map_data)
-    if dir == '1':
+    if dir == 1:
         layout[x][y] = 0  # Character moved
         layout[x][y-1] = player_id  # Character new position
-    elif dir == '2':
+    elif dir == 2:
         layout[x][y] = 0
         layout[x][y+1] = player_id
-    elif dir == '3':
+    elif dir == 3:
         layout[x][y] = 0
         layout[x-1][y] = player_id
-    elif dir == '4':
+    elif dir == 4:
         layout[x][y] = 0
         layout[x+1][y] = player_id
     map_data['layout'] = layout
