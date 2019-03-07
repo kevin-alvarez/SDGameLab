@@ -8,8 +8,31 @@ def move(x, y, dir, game_map):
     y = int(y)
     dir = int(dir)
     player_id = int(layout[x][y])
-    if (x - 1 < 0) or (y - 1 < 0) or (x + 1 > 19) or (y + 1 > 19):
-        return str(map_data)
+
+    # Borde superior del mapa
+    if (x == 0):
+
+        # Borde izquierdo del mapa
+        if (y == 0) and (dir in [3, 1]):
+            return str(map_data)
+
+        # Borde derecho del mapa
+        elif (y == 19) and (dir in [3, 2]):
+            return str(map_data)
+
+    # Borde inferior del mapa
+    if (x == 19):
+        # Borde izquierdo del mapa
+        if (y == 0) and (dir in [4, 1]):
+            return str(map_data)
+
+        # Borde derecho del mapa
+        elif (y == 19) and (dir in [4, 2]):
+            return str(map_data)
+
+    # if (x - 1 < 0) or (y - 1 < 0) or (x + 1 > 19) or (y + 1 > 19):
+    #     return str(map_data)
+
     if dir == 1:
         layout[x][y] = 0  # Character moved
         layout[x][y-1] = player_id  # Character new position

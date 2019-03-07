@@ -79,6 +79,7 @@ def test():
     # numero_nuevo <= numero_cache -> mapa desactualizado
     return job.result
 
+
 @app.route('/attack')
 def attackQ():
     game_map = cache.get('map_1')
@@ -104,7 +105,7 @@ def connect():
 
 @socketio.on('disconnect')
 def disconnect(message):
-    socketio.emit('message', 'Se ha desconectado el jugador '+ message)
+    socketio.emit('message', 'Se ha desconectado el jugador ' + message)
 
 
 @socketio.on('move')
@@ -136,36 +137,4 @@ $ rq worker <nombre_queue>
 <nombre_queue>: Representan los nombres de las colas a la cuales estara atento
                 el worker que se instancie. Para nombrar multiples colas, se
                 deben separar por un espacio. ($ rq worker cola1 cola2 ...)
-"""
-
-"""
----------------------------------------------------------
-Solucion alternativa (asumiendo una entrada de tipo JSON)
----------------------------------------------------------
-
-from rq.job import Job
-
-@app.route('/perform_action')
-def perform_action(data):
-
-  job = None
-  action = data['action']
-
-  if action == 'move':
-    job = q_move.enqueue(move, data['x'], data['y'], data['direction'])
-
-  elif action == 'attack:
-    job = q_attack.enqueue(attack, data['attack_choosed'])
-
-  return job.key
-
-@app.route('/confirm_action')
-def confirm_action(job_key):
-
-  job = Job().fetch(job_key, connection=redis)
-
-  if job.is_finished:
-    return True
-
-  return False
 """
